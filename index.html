@@ -1,16 +1,9 @@
 <html>
 	<head>
 		<script type="text/javascript">
-			var site_name = "gitstatus";//removeTags(JSON.parse(httpGet("https://api.github.com/gists/5103104")).files["gistfile1.txt"].content);
+			var site_name = "Latest Tweets";//removeTags(JSON.parse(httpGet("https://api.github.com/gists/???????")).files["gistfile1.txt"].content);
 			var username = window.location.search.substr(1);
 			document.write("<title>" + ((0 != username.length) ? username + " - " : "") + site_name + "</title>");
-
-			var sock = new WebSocket("ws://localhost:4000/");
-			//sock.addEventListener('open', function(e2) { sock.send( ... ) });
-			sock.onopen = function(evt) { console.log("Open: ", evt); };
-			sock.onclose = function(evt) { console.log("Close: ", evt); };
-			sock.onmessage = function(evt) { document.getElementById("myLiveOut").textContent = evt.data; console.log("Message: ", evt.data); };
-			sock.onerror = function(evt) { console.log("Error: ", evt); };
 
 			function removeTags(html) {
 				return html.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
@@ -34,11 +27,6 @@
 				xmlHttp.setRequestHeader("Accept", accept);
 				xmlHttp.send();
 				return xmlHttp.responseText;
-			}
-
-			function liveUpdateTest(e) {
-				//document.getElementById("myLiveOut").textContent = e.value.toUpperCase();
-				sock.send(e.value + "\n");		// HACK: Should make sure that sock.onopen has happened before calling send...
 			}
 		</script>
 		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
@@ -70,16 +58,12 @@
 		</script>
 		<br><br>
 		<form name="myForm" action="javascript:updateUrl();">
-			<label for=name>See what this person on GitHub is doing</label>
-			<input id="name"></input>
+			<label for=name>Twitter username @</label>
+			<input id="name" placeholder="example"></input>
 			<input id=myButton name=myButton type=submit value="Go"></input>
 		</form>
 		<input onInput="liveUpdateTest(this);"></input>
-		<div id="myLiveOut"></div>
-		<br>
 
-		<div id="outputBox"></div>
-		<br>
 		<div id="twitterFollowees"></div>
 		<script type="text/javascript">
 			//if (null != getUrlParam("name"))
@@ -96,39 +80,6 @@
 				var out = document.getElementById("outputBox");
 
 				try {
-					var x = httpGetAccept("https://api.github.com/repos/" + name + "/gitstatus.content/readme", "application/vnd.github.raw");
-					//var j = JSON.parse(r);
-					//var x = atob(j.content.replace(/\n/gm, ""));
-					//document.write("<div>" + removeTags(x) + "</div>");
-					var innerHTML = "";
-					innerHTML += removeTags(x);
-					innerHTML += "<br><br>";
-					var f = JSON.parse(httpGet("https://api.github.com/users/" + name + "/following"));
-					innerHTML += "<table>"
-					for (var i = 0; i < f.length; i++) {
-						var login = removeTags(f[i].login);
-						innerHTML += "<tr><td style='padding-right: 3px;'>";
-						innerHTML += "<img src=\"" + f[i].avatar_url + "\" width=16 height=16></td>" +
-							"<td><span id=\"userBox_" + login + "\">" + login + "</span></td></tr>"
-						//innerHTML += " <iframe style=\"border: 0; margin: 0; padding: 0;\" src=\"https://www.gittip.com/" + login + "/widget.html\" width=48pt height=22pt></iframe>";
-						//innerHTML += "<script>alert(\"Hi to " + login + "\");</sc" + "ript>";
-						//document.write("<script>alert(\"Hi to " + login + "\");</sc" + "ript>");
-					};
-					innerHTML += "</table>";
-					innerHTML += "<br>";
-					innerHTML += removeTags(JSON.parse(httpGet("https://www.gittip.com/" + name + "/public.json")).receiving);
-
-					out.innerHTML = innerHTML;
-				} catch (exc) {
-					out.textContent = "Exception: " + exc;
-				}
-
-				//document.write(httpGet("https://api.twitter.com/1/followers/ids.json?screen_name=shurcooL"));
-				//document.write(httpGet("https://www.gittip.com/on/github/shurcooL/"));
-
-				//document.write("<script type=\"text/javascript\" src=\"https://api.twitter.com/1/statuses/friends/" + name + ".json?callback=twitterFolloweesCallback2\"></sc" + "ript>");
-
-				try {
 					var scriptTag = document.createElement("script");
 					scriptTag.type = "text/javascript";
 					scriptTag.src = "https://api.twitter.com/1/statuses/friends/" + name + ".json?callback=twitterFolloweesCallback2";
@@ -140,20 +91,6 @@
 
 			if (0 != document.myForm.name.value.length)
 				doThisThing();
-
-			/*function twitterCallback(json) {
-				document.getElementById("twiteeBox_" + json[0].user.id_str).innerHTML += "<b>" + json[0].user.screen_name + ":</b> " + json[0].text;
-			}
-
-			function twitterFolloweesCallback(json) {
-				var out = document.getElementById("twitterFollowees");
-				var f = json.ids;
-				for (var i = 0; i < f.length; i++) {
-					//out.innerHTML += f[i] + "<br>";
-					out.innerHTML += "<div id=\"twiteeBox_" + f[i] + "\"></div>";
-					document.write("<script type=\"text/javascript\" src=\"https://api.twitter.com/1/statuses/user_timeline/" + f[i] + ".json?callback=twitterCallback&count=1\"></sc" + "ript>");
-				};
-			}*/
 
 			function twitterFolloweesCallback2(json) {
 				var out = document.getElementById("twitterFollowees");
@@ -170,7 +107,5 @@
 				out.innerHTML = innerHTML;
 			}
 		</script>
-		<!--script type="text/javascript" src="https://api.twitter.com/1/statuses/user_timeline/whit537.json?callback=twitterCallback&count=1"></script-->
-		<!--script type="text/javascript" src="https://api.twitter.com/1/friends/ids/pavelbennett.json?callback=twitterFolloweesCallback"></script-->
 	</body>
 </html>
