@@ -2,8 +2,11 @@
 	<head>
 		<script type="text/javascript">
 			var site_name = "Latest Tweets";//removeTags(JSON.parse(httpGet("https://api.github.com/gists/???????")).files["gistfile1.txt"].content);
-			var username = window.location.search.substr(1);
-			document.write("<title>" + ((0 != username.length) ? username + " - " : "") + site_name + "</title>");
+			var username = window.location.search.substr(1).split("/")[0];
+			if (null == username) username = "";
+			var listname = window.location.search.substr(1).split("/")[1];
+			if (null == listname) listname = "";
+			document.write("<title>" + ((0 != username.length) ? "@" + username + ((listname.length > 0) ? "/" + listname : "") + " - " : "") + site_name + "</title>");
 
 			function removeTags(html) {
 				return html.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
@@ -60,31 +63,34 @@
 
 		<div id="twitterFollowees"></div>
 		<script type="text/javascript">
-			//if (null != getUrlParam("name"))
-			//	document.myForm.name.value = getUrlParam("name");
-			document.myForm.name.value = window.location.search.substr(1);
+			document.myForm.name.value = username;
 
 			function updateUrl() {
-				var name = document.myForm.name.value;
-				window.location.search = name;
+				window.location.search = username;
 			}
 
 			function doThisThing() {
-				var name = document.myForm.name.value;
 				var out = document.getElementById("outputBox");
 
 				try {
 					var scriptTag = document.createElement("script");
 					scriptTag.type = "text/javascript";
-					scriptTag.src = "https://api.twitter.com/1/statuses/friends/" + name + ".json?callback=twitterFolloweesCallback2";
+					if (listname.length <= 0)
+						scriptTag.src = "https://api.twitter.com/1/statuses/friends/" + username + ".json?callback=twitterFolloweesCallback2";
+					else
+						scriptTag.src = "https://api.twitter.com/1/lists/members.json?slug=" + listname + "&owner_screen_name=" + username + "&callback=twitterFolloweesCallback3";
 					document.body.appendChild(scriptTag);
 				} catch (exc) {
 					document.getElementById("twitterFollowees").textContent = "Exception: " + exc;
 				}
 			}
 
-			if (0 != document.myForm.name.value.length)
+			if (username.length > 0)
 				doThisThing();
+
+			function GetMoreInfoLink(screen_name) {
+				return "<span> <a href=\"https://twitter.com/" + screen_name + "\" target=_blank>...</a></span>";
+			}
 
 			function twitterFolloweesCallback2(json) {
 				var out = document.getElementById("twitterFollowees");
@@ -94,11 +100,15 @@
 					innerHTML += "<tr><td style='padding-right: 3px;'>";
 					innerHTML += "<img src=\"" + json[i].profile_image_url_https + "\" width=16 height=16></td><td style='padding-right: 3px;'>";
 					innerHTML += removeTags(json[i].name) + " <span class='smaller'>@" + removeTags(json[i].screen_name) + "</span></td>";
-					if (null != json[i].status) innerHTML += "<td>" + json[i].status.text + "</td>";
+					if (null != json[i].status) innerHTML += "<td>" + json[i].status.text + GetMoreInfoLink(removeTags(json[i].screen_name)) + "</td>";
 					innerHTML += "</tr>";
 				};
 				innerHTML += "</table>";
 				out.innerHTML = innerHTML;
+			}
+
+			function twitterFolloweesCallback3(json) {
+				return twitterFolloweesCallback2(json.users);
 			}
 		</script>
 	</body>
