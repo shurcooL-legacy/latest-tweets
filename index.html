@@ -66,7 +66,7 @@
 			document.myForm.name.value = username;
 
 			function updateUrl() {
-				window.location.search = username;
+				window.location.search = document.myForm.name.value;
 			}
 
 			function doThisThing() {
@@ -92,6 +92,19 @@
 				return "<span> <a href=\"https://twitter.com/" + screen_name + "\" target=_blank>...</a></span>";
 			}
 
+			function TimePassedToAlpha(seconds) {
+				var max = 60 * 60 * 24 * 7;
+				if (seconds > max) return 0;
+				else return Math.pow((max - seconds) / max, 50);
+			}
+
+			function GetStatusText(status) {
+				var created_at = new Date(Date.parse(status.created_at)).getTime() / 1000;
+				var now = new Date().getTime() / 1000;
+
+				return "<span style=\"background-color: rgba(255, 255, 0, " + TimePassedToAlpha(now - created_at) + ");\">" + status.text + "</span>";
+			}
+
 			function twitterFolloweesCallback2(json) {
 				var out = document.getElementById("twitterFollowees");
 				var innerHTML = "";
@@ -100,7 +113,7 @@
 					innerHTML += "<tr><td style='padding-right: 3px;'>";
 					innerHTML += "<img src=\"" + json[i].profile_image_url_https + "\" width=16 height=16></td><td style='padding-right: 3px;'>";
 					innerHTML += removeTags(json[i].name) + " <span class='smaller'>@" + removeTags(json[i].screen_name) + "</span></td>";
-					if (null != json[i].status) innerHTML += "<td>" + json[i].status.text + GetMoreInfoLink(removeTags(json[i].screen_name)) + "</td>";
+					if (null != json[i].status) innerHTML += "<td>" + GetStatusText(json[i].status) + GetMoreInfoLink(removeTags(json[i].screen_name)) + "</td>";
 					innerHTML += "</tr>";
 				};
 				innerHTML += "</table>";
