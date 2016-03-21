@@ -5,6 +5,4 @@ _**Note:** This app relied on Twitter API v1, which allowed it stay simple and n
 
 Latest Tweets shows you just the latest tweet from everyone you follow (or one of your public twitter lists).
 
-http://shurcool.github.io/latest-tweets/
-
 ![](Screenshot.png)
